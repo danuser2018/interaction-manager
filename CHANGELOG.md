@@ -19,7 +19,7 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## Sin publicar
+## [1.0.0] 2026-06-04
 
 ### Añadido
 
@@ -39,6 +39,9 @@ Los cambios se agrupan en las siguientes categorías:
 ### Corregido
 
 - Corregido el nombre del parámetro de `file` a `audio` en `stt_client.py` para coincidir con la API de STT.
+
+## Sin publicar
+
 ---
 
 <!-- Plantilla para nuevas versiones:
