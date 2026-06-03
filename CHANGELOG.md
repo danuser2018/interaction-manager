@@ -32,6 +32,9 @@ Los cambios se agrupan en las siguientes categorías:
   desarrollo asistido con IA.
 - Fichero `CHANGELOG.md` con el formato Keep a Changelog v1.1.0 en castellano.
 
+### Corregido
+
+- Corregido el nombre del parámetro de `file` a `audio` en `stt_client.py` para coincidir con la API de STT.
 ---
 
 <!-- Plantilla para nuevas versiones:

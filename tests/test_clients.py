@@ -17,6 +17,8 @@ async def test_get_transcription(mocker):
     result = await stt_client.get_transcription("fake_path.wav")
     assert result == "hola mundo"
     mock_post.assert_called_once()
+    assert "files" in mock_post.call_args[1]
+    assert "audio" in mock_post.call_args[1]["files"]
 
 @pytest.mark.asyncio
 async def test_execute_interaction(mocker):

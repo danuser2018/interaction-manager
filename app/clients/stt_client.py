@@ -14,7 +14,7 @@ async def get_transcription(audio_file_path: str) -> str:
     
     async with httpx.AsyncClient() as client:
         with open(audio_file_path, "rb") as f:
-            files = {"file": (audio_file_path, f, "audio/wav")}
+            files = {"audio": (audio_file_path, f, "audio/wav")}
             data = {"language": settings.DEFAULT_LANGUAGE}
             response = await client.post(url, files=files, data=data)
             
