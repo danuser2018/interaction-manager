@@ -23,6 +23,10 @@ Los cambios se agrupan en las siguientes categorías:
 
 ### Añadido
 
+- Implementación completa del servicio `interaction-manager` con clientes HTTP, pipeline de orquestación, y watcher de ficheros.
+- Configuración de Docker (`Dockerfile`, `docker-compose.yml`).
+- Configuración de GitHub Actions para CI (`.github/workflows/pr-tests.yml`).
+- Pruebas unitarias para la lógica principal.
 - Fichero `CONTRIBUTING.md` con el flujo de trabajo Trunk Based Development,
   convenciones de commits, guía de Pull Requests y buenas prácticas para
   desarrollo asistido con IA.
