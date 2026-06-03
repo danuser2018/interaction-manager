@@ -32,6 +32,10 @@ Los cambios se agrupan en las siguientes categorías:
   desarrollo asistido con IA.
 - Fichero `CHANGELOG.md` con el formato Keep a Changelog v1.1.0 en castellano.
 
+### Cambiado
+
+- Aumentado el timeout del cliente HTTP a 60 segundos en `stt_client.py` para soportar audios más largos.
+
 ### Corregido
 
 - Corregido el nombre del parámetro de `file` a `audio` en `stt_client.py` para coincidir con la API de STT.

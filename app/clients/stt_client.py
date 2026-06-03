@@ -12,7 +12,7 @@ async def get_transcription(audio_file_path: str) -> str:
     url = f"{settings.STT_BASE_URL}/v1/transcriptions"
     logger.info(f"Sending {audio_file_path} to STT Service ({url})")
     
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=60.0) as client:
         with open(audio_file_path, "rb") as f:
             files = {"audio": (audio_file_path, f, "audio/wav")}
             data = {"language": settings.DEFAULT_LANGUAGE}
