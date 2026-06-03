@@ -1,13 +1,14 @@
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, Mock
 from app.clients import stt_client, orchestrator_client, tts_client
 
 @pytest.mark.asyncio
 async def test_get_transcription(mocker):
     # Mock httpx.AsyncClient
-    mock_post = AsyncMock()
-    mock_post.return_value.json.return_value = {"text": "hola mundo"}
-    mock_post.return_value.raise_for_status = AsyncMock()
+    mock_response = Mock()
+    mock_response.json.return_value = {"text": "hola mundo"}
+    
+    mock_post = AsyncMock(return_value=mock_response)
 
     mocker.patch("httpx.AsyncClient.post", new=mock_post)
     
@@ -22,9 +23,10 @@ async def test_get_transcription(mocker):
 
 @pytest.mark.asyncio
 async def test_execute_interaction(mocker):
-    mock_post = AsyncMock()
-    mock_post.return_value.json.return_value = {"success": True, "speech": "hola a ti tambien"}
-    mock_post.return_value.raise_for_status = AsyncMock()
+    mock_response = Mock()
+    mock_response.json.return_value = {"success": True, "speech": "hola a ti tambien"}
+    
+    mock_post = AsyncMock(return_value=mock_response)
 
     mocker.patch("httpx.AsyncClient.post", new=mock_post)
     
@@ -35,9 +37,10 @@ async def test_execute_interaction(mocker):
 
 @pytest.mark.asyncio
 async def test_synthesize_speech(mocker):
-    mock_post = AsyncMock()
-    mock_post.return_value.content = b"fake audio bytes"
-    mock_post.return_value.raise_for_status = AsyncMock()
+    mock_response = Mock()
+    mock_response.content = b"fake audio bytes"
+    
+    mock_post = AsyncMock(return_value=mock_response)
 
     mocker.patch("httpx.AsyncClient.post", new=mock_post)
     

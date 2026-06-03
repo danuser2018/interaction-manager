@@ -39,6 +39,7 @@ Los cambios se agrupan en las siguientes categorías:
 ### Corregido
 
 - Corregido el nombre del parámetro de `file` a `audio` en `stt_client.py` para coincidir con la API de STT.
+- Corregido el mock de la respuesta HTTP en las pruebas de `stt_client.py` y `orchestrator_client.py` para evitar errores `AttributeError: 'coroutine' object has no attribute 'get'` durante la ejecución de pytest en la pipeline.
 
 ## Sin publicar
 
