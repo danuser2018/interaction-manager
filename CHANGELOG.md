@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## Sin publicar
+
+### Añadido
+
+- Nuevo documento de UX & Interaction guide, que define cómo son las interacciones con el usuario.
+
 ## [1.0.0] 2026-06-04
 
 ### Añadido
