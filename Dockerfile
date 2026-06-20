@@ -9,6 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
+COPY audio/ ./audio/
 
 # Crear un usuario no root
 RUN useradd -m appuser && chown -R appuser /app

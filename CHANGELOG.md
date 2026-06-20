@@ -19,13 +19,27 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## Sin publicar
+## [1.1.0] 2026-06-20
 
 ### Añadido
 
 - Nuevo documento de UX & Interaction guide, que define cómo son las interacciones con el usuario.
 - Nuevo documento donde se explica la feature de gestión de errores. 
 - Audios pregrabados para errores de usuario.
+- Nuevo módulo `app/exceptions.py` con jerarquía de excepciones personalizadas (`STTError`, `OrchestratorError`, `TTSError` y sus subtipos).
+- Nuevo módulo `app/services/error_handler.py` que centraliza la traducción de excepciones técnicas a mensajes UX y gestiona la resiliencia mediante audios de emergencia pregrabados.
+- Nueva variable de configuración `EMERGENCY_AUDIO_DIR` en `app/config/settings.py` configurable mediante variable de entorno.
+- Nuevos tests unitarios para `error_handler` (`tests/test_error_handler.py`) y para los casos de error de los clientes HTTP.
+
+### Cambiado
+
+- `app/clients/stt_client.py`: los fallos HTTP ahora elevan `STTUnavailableError` en lugar de propagar la excepción nativa de `httpx`. El campo `text` se devuelve sin coerción a cadena vacía para distinguir `None` de `""`.
+- `app/clients/orchestrator_client.py`: los fallos HTTP elevan `OrchestratorUnavailableError`; las respuestas con `success=false` elevan `OrchestratorResponseError`.
+- `app/clients/tts_client.py`: los fallos HTTP elevan `TTSUnavailableError`.
+- `app/services/interaction_pipeline.py`: usa las nuevas excepciones específicas en lugar de `ValueError` genérico; diferencia entre transcripción nula y transcripción vacía.
+- `app/services/file_watcher.py`: ante cualquier error de pipeline, además de mover el fichero a `/data/error`, genera y escribe un audio de error en `/data/output` para garantizar que el usuario siempre recibe respuesta (RF-001, RF-002, RF-003, RF-004).
+- `Dockerfile`: incluye la copia de la carpeta `audio/` para que los audios de emergencia estén disponibles dentro del contenedor.
+
 
 ## [1.0.0] 2026-06-04
 
