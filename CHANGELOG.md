@@ -19,6 +19,13 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## Sin publicar
+
+### Añadido
+
+- Se añaden audios para confirmación y espera
+- Se añade descripción funcional de como se debe comportar el audio feedback (audios de confirmación y espera).
+
 ## [1.1.0] 2026-06-20
 
 ### Añadido
