@@ -5,7 +5,7 @@ import asyncio
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from app.config import settings
-from app.services import interaction_pipeline
+from app.services import interaction_pipeline, error_handler
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +60,20 @@ class AudioFileHandler(FileSystemEventHandler):
                     logger.info(f"Moved failed file to {error_path}")
             except Exception as move_e:
                 logger.error(f"Failed to move file to error directory: {move_e}")
+
+            # Generar audio de error para comunicación al usuario (RF-003, RF-004)
+            try:
+                logger.info(f"Generating error audio for {filename}")
+                error_audio = await error_handler.handle_error(e)
+                if error_audio:
+                    with open(output_path, "wb") as f:
+                        f.write(error_audio)
+                    logger.info(f"Saved error output to {output_path}")
+                else:
+                    logger.warning("No error audio generated.")
+            except Exception as handler_e:
+                logger.error(f"Failed to generate and save error audio: {handler_e}")
+
 
 def start_watcher(loop):
     event_handler = AudioFileHandler(loop)
