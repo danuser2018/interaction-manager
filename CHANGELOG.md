@@ -24,6 +24,8 @@ Los cambios se agrupan en las siguientes categorías:
 ### Añadido
 
 - Nuevo documento de UX & Interaction guide, que define cómo son las interacciones con el usuario.
+- Nuevo documento donde se explica la feature de gestión de errores. 
+- Audios pregrabados para errores de usuario.
 
 ## [1.0.0] 2026-06-04
 
