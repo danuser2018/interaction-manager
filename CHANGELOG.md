@@ -18,6 +18,13 @@ Los cambios se agrupan en las siguientes categorías:
 - **Seguridad** — correcciones de vulnerabilidades.
 
 ---
+
+## [1.3.0] 2026-06-23
+
+### Cambiado
+
+- Audio `interaction.wav` más texturizado.
+
 ## [1.2.1] 2026-06-23
 
 ### Cambiado
