@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.4.0] 2026-06-23
+
+### Cambiado
+
+- Audio `interaction.wav` un poco más largo (20 segundos) para no dejar silencios al usuario.
+
 ## [1.3.0] 2026-06-23
 
 ### Cambiado
