@@ -19,4 +19,8 @@ EMERGENCY_AUDIO_DIR = os.getenv(
     "EMERGENCY_AUDIO_DIR",
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "audio", "emergency"))
 )
+INTERACTION_AUDIO_FILE = os.getenv(
+    "INTERACTION_AUDIO_FILE",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "audio", "system", "interaction.wav"))
+)
 

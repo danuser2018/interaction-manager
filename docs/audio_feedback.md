@@ -48,17 +48,15 @@ La implementación debe mejorar la percepción de velocidad sin modificar el pip
 
 ## Recursos disponibles
 
-Se han incorporado dos audios al repositorio:
+Se ha incorporado un audio al repositorio:
 
 ```text
-audio/system/
-├── acknowledge.wav
-└── waiting.wav
+audio/system/interaction.wav
 ```
 
-### acknowledge.wav
+Este audio incorpora dos sonidos:
 
-Audio breve de confirmación.
+### Sonido breve de confirmación
 
 Significado UX:
 
@@ -66,9 +64,7 @@ Significado UX:
 
 ---
 
-### waiting.wav
-
-Textura sonora de espera.
+### Textura sonora de espera.
 
 Significado UX:
 
@@ -89,17 +85,19 @@ No representa tiempo restante.
 ```text
 Usuario termina de hablar
         ↓
-acknowledge.wav
-        ↓
-waiting.wav
+interaction.wav
         ↓
 Inicio STT
         ↓
 STT finaliza
         ↓
-waiting.wav OFF
+orchestrator resuelve        
         ↓
-Resto del pipeline
+TTS finaliza
+        ↓
+interaction.wav OFF
+        ↓
+Se reproduce respuesta
 ```
 
 ---
@@ -108,7 +106,7 @@ Resto del pipeline
 
 ### Regla 1
 
-acknowledge.wav debe reproducirse inmediatamente tras finalizar la captura de voz.
+interaction.wav debe reproducirse inmediatamente tras finalizar la captura de voz.
 
 Objetivo:
 
@@ -118,32 +116,23 @@ Eliminar incertidumbre.
 
 ### Regla 2
 
-waiting.wav debe comenzar inmediatamente después de la confirmación.
+interaction.wav debe continuar hasta tener respuesta disponible.
 
 Objetivo:
 
-Ocultar el silencio durante la fase STT.
+Ocultar el silencio durante la fase STT-orchestrator-TTS
 
 ---
 
 ### Regla 3
 
-waiting.wav debe detenerse en cuanto exista una respuesta válida del STT.
-
-No debe permanecer activo durante:
-
-* Clasificación de intención.
-* Selección de plugin.
-* Ejecución del plugin.
-* Generación TTS.
-
-El UX Guide define explícitamente que el audio de espera cubre únicamente la fase STT.
+interaction.wav debe detenerse en cuanto exista una respuesta válida del TTS.
 
 ---
 
 ### Regla 4
 
-Si el STT finaliza rápidamente, el sistema puede omitir waiting.wav.
+Si la pipeline finaliza rápidamente, el sistema puede omitir interaction.wav.
 
 No debe forzarse una duración mínima artificial.
 
@@ -153,7 +142,7 @@ Priorizar siempre la rapidez percibida.
 
 ### Regla 5
 
-La reproducción de estos audios no debe bloquear el pipeline principal.
+La reproducción de este audio no debe bloquear el pipeline principal.
 
 El procesamiento debe continuar independientemente de la reproducción.
 
@@ -164,13 +153,11 @@ El procesamiento debe continuar independientemente de la reproducción.
 ### Error STT
 
 ```text
-acknowledge.wav
-        ↓
-waiting.wav
+interaction.wav
         ↓
 Error STT
         ↓
-waiting.wav OFF
+interaction.wav OFF
         ↓
 Mensaje de error
 ```
@@ -180,9 +167,7 @@ Mensaje de error
 ### Timeout STT
 
 ```text
-acknowledge.wav
-        ↓
-waiting.wav
+interaction.wav
         ↓
 Timeout
         ↓
@@ -196,13 +181,11 @@ Mensaje de error
 ### Texto vacío
 
 ```text
-acknowledge.wav
-        ↓
-waiting.wav
+interaction.wav
         ↓
 Transcripción vacía
         ↓
-waiting.wav OFF
+interaction.wav OFF
         ↓
 "No entendido."
 ```
@@ -211,7 +194,7 @@ waiting.wav OFF
 
 ## Responsabilidad arquitectónica
 
-La gestión de estos audios pertenece exclusivamente al Interaction Manager.
+La gestión de este audio pertenece exclusivamente al Interaction Manager.
 
 No debe trasladarse responsabilidad a:
 
@@ -226,15 +209,14 @@ El feedback de interacción forma parte de la capa UX del sistema.
 
 ## Configuración
 
-Las rutas de los audios deben centralizarse como configuración del Interaction Manager.
+La ruta del audio debe centralizarse como configuración del Interaction Manager.
 
 Se recomienda evitar rutas hardcodeadas dentro del código de negocio.
 
 Ejemplo:
 
 ```text
-audio/system/acknowledge.wav
-audio/system/waiting.wav
+audio/system/interaction.wav
 ```
 
 ---
@@ -243,9 +225,8 @@ audio/system/waiting.wav
 
 Registrar:
 
-* Inicio de reproducción acknowledge.
-* Inicio de reproducción waiting.
-* Fin de reproducción waiting.
+* Inicio de reproducción interaction.wav
+* Fin de reproducción interaction.wav
 
 No registrar:
 
@@ -258,25 +239,25 @@ No registrar:
 
 ### CA-001
 
-Toda petición válida reproduce acknowledge.wav inmediatamente después de finalizar la captura.
+Toda petición válida reproduce interaction.wav inmediatamente después de finalizar la captura.
 
 ---
 
 ### CA-002
 
-Durante la fase STT no existe silencio perceptible para el usuario.
+Durante la ejecución de la pipeline no existe silencio perceptible para el usuario.
 
 ---
 
 ### CA-003
 
-waiting.wav se detiene automáticamente cuando finaliza el STT.
+interaction.wav se detiene automáticamente cuando hay respuesta.
 
 ---
 
 ### CA-004
 
-La reproducción de audios no bloquea el pipeline principal.
+La reproducción del audio no bloquea el pipeline principal.
 
 ---
 
