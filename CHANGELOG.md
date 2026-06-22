@@ -19,12 +19,16 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
-## Sin publicar
+## [1.2.0] 2026-06-22
 
 ### Añadido
 
-- Se añaden audios para confirmación y espera
+- Se añaden audios para confirmación y espera.
 - Se añade descripción funcional de como se debe comportar el audio feedback (audios de confirmación y espera).
+- Nueva variable de configuración `INTERACTION_AUDIO_FILE` en `app/config/settings.py` para definir la ruta al archivo de audio de feedback.
+- Lógica en `app/services/file_watcher.py` para copiar de forma asíncrona no bloqueante el archivo de feedback a la carpeta de salida tras finalizar la captura.
+- Lógica de cancelación que elimina el audio de feedback de la carpeta de salida al finalizar el pipeline (con éxito o error) para optimizar la experiencia si el procesamiento es rápido.
+- Logs estructurados para registrar el inicio y el fin de reproducción del audio de feedback.
 
 ## [1.1.0] 2026-06-20
 

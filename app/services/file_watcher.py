@@ -38,9 +38,31 @@ class AudioFileHandler(FileSystemEventHandler):
             logger.error(f"Failed to move file to processing: {e}")
             return
 
+        feedback_output_path = os.path.join(settings.OUTPUT_DIR, f"interaction_{filename}")
+        feedback_copied = False
+
         try:
+            try:
+                if os.path.exists(settings.INTERACTION_AUDIO_FILE):
+                    await asyncio.to_thread(shutil.copy, settings.INTERACTION_AUDIO_FILE, feedback_output_path)
+                    logger.info("Inicio de reproducción interaction.wav")
+                    feedback_copied = True
+                else:
+                    logger.warning(f"Interaction audio file not found at {settings.INTERACTION_AUDIO_FILE}. Skipping audio feedback.")
+            except Exception as copy_e:
+                logger.error(f"Failed to copy interaction audio feedback: {copy_e}. Skipping audio feedback.")
+
             # Ejecutar el pipeline (pasos 3 al 8)
             audio_bytes = await interaction_pipeline.process_interaction(processing_path)
+
+            if feedback_copied:
+                logger.info("Fin de reproducción interaction.wav")
+                try:
+                    os.remove(feedback_output_path)
+                except FileNotFoundError:
+                    pass
+                except Exception as remove_e:
+                    logger.error(f"Failed to remove temporary feedback file {feedback_output_path}: {remove_e}")
 
             # 9. Almacenar en /data/output
             with open(output_path, "wb") as f:
@@ -53,6 +75,16 @@ class AudioFileHandler(FileSystemEventHandler):
 
         except Exception as e:
             logger.error(f"Error processing {filename}: {e}", exc_info=True)
+
+            if feedback_copied:
+                logger.info("Fin de reproducción interaction.wav")
+                try:
+                    os.remove(feedback_output_path)
+                except FileNotFoundError:
+                    pass
+                except Exception as remove_e:
+                    logger.error(f"Failed to remove temporary feedback file {feedback_output_path}: {remove_e}")
+
             # En caso de error, mover a /data/error
             try:
                 if os.path.exists(processing_path):
