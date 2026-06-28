@@ -174,7 +174,7 @@ Ha ocurrido un error al generar la respuesta.
 Si no es posible generar audio:
 
 * Registrar error.
-* Mover a `/error`.
+* Mover a `/data/error`.
 
 Este es el único escenario donde podría no existir respuesta audible.
 

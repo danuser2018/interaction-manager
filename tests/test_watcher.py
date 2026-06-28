@@ -145,3 +145,21 @@ async def test_handle_new_file_audio_feedback_copy_error_continues(mocker):
     # Verify final response is still written
     mock_open_file.assert_called_with(os.path.join(settings.OUTPUT_DIR, "test.wav"), "wb")
     mock_open_file().write.assert_called_with(b"audio data")
+
+
+@pytest.mark.asyncio
+async def test_handle_new_file_initial_move_error_generates_error_audio(mocker):
+    mocker.patch("shutil.move", side_effect=Exception("Initial move failed"))
+    mocker.patch("app.services.error_handler.handle_error", return_value=b"error audio from initial move failure")
+    mock_open_file = mocker.patch("builtins.open", mocker.mock_open())
+    
+    loop = asyncio.get_event_loop()
+    handler = AudioFileHandler(loop)
+    
+    await handler.handle_new_file("/data/input/test.wav")
+    
+    # Verify error audio is written to output_path even if move failed
+    output_path = os.path.join(settings.OUTPUT_DIR, "test.wav")
+    mock_open_file.assert_called_with(output_path, "wb")
+    mock_open_file().write.assert_called_with(b"error audio from initial move failure")
+

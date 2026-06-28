@@ -21,7 +21,7 @@ ERROR_MAPPING = {
         "stt_not_understood.wav"
     ),
     STTNullResponseError: (
-        "No he podido procesar el audio.",
+        "No he podido completar la operación.",
         "operation_failed.wav"
     ),
     STTUnavailableError: (
@@ -33,15 +33,15 @@ ERROR_MAPPING = {
         "operation_failed.wav"
     ),
     OrchestratorUnavailableError: (
-        "No he podido completar la operación.",
+        "El servicio solicitado no está disponible.",
         "service_unavailable.wav"
     ),
     TTSResponseError: (
-        "Ha ocurrido un error al generar la respuesta.",
+        "Ha ocurrido un error interno.",
         "fatal_error.wav"
     ),
     TTSUnavailableError: (
-        "Ha ocurrido un error al generar la respuesta.",
+        "Ha ocurrido un error interno.",
         "fatal_error.wav"
     ),
 }

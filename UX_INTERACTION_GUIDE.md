@@ -117,244 +117,60 @@ Debe evitar:
 
 ## Duración
 
-El audio permanece activo exclusivamente durante el procesamiento STT.
+El audio permanece activo durante toda la pipeline de ejecución (STT -> Orchestrator -> TTS), deteniéndose en cuanto exista una respuesta válida del TTS.
 
 ---
 
-# 5. Fase 2: Comprensión
+# 5. Fase 2: Comprensión y Ejecución
 
 ## Objetivo
 
-Interpretar la intención del usuario.
+Interpretar la intención del usuario y procesar la petición.
 
-Cuando el STT finaliza:
+Durante esta fase, el audio de espera continúa activo para ocultar el silencio durante el procesamiento técnico del sistema.
 
 ```text
 STT completado
         ↓
-Audio OFF
+Procesamiento Orchestrator
         ↓
-Router
+Generación TTS completada
         ↓
-Selección de plugin
+Audio de espera OFF
 ```
 
-A partir de este momento Nova-2 conoce la intención solicitada.
-
 ---
 
-# 6. Clasificación de operaciones
+# 6. Reglas de Duración y Asincronía
 
-Tras seleccionar el plugin, Nova-2 clasifica la operación según su duración estimada.
+## Duración máxima
+Las operaciones síncronas de Nova-2 no deben tener una duración mayor a 10 segundos.
 
-Se distinguen tres categorías:
+## Operaciones largas
+Si la operación requiere una ejecución que supere los 10 segundos:
+1. Se debe derivar la respuesta a un canal asíncrono secundario (como puede ser el correo electrónico).
+2. Responder inmediatamente al usuario en la interacción de voz indicando que la respuesta se enviará por dicho canal alternativo cuando esté lista.
 
-- Operación corta.
-- Operación media.
-- Operación larga.
-
----
-
-# 7. Operaciones cortas
-
-## Definición
-
-Duración esperada inferior a 1 segundo.
-
-Ejemplos:
-
-- Encender una luz.
-- Apagar un dispositivo.
-- Abrir una aplicación.
-- Consultar la hora.
-- Obtener información local ya disponible.
-
----
-
-## Flujo
-
+### Flujo de operación larga
 ```text
-Audio ON
+Petición recibida
         ↓
-STT
+Detección de proceso largo (> 10s)
         ↓
-Audio OFF
+Respuesta inmediata por voz ("Enviaré el resultado por correo en cuanto esté listo.")
         ↓
-Respuesta inmediata
+Ejecución en segundo plano
+        ↓
+Envío del correo con el resultado
 ```
 
----
-
-## Ejemplos
-
-Usuario:
-
-> Enciende la luz.
-
-Nova-2:
-
-> Luz encendida.
+### Mensajes recomendados para operaciones largas
+- "El proceso tardará un momento, te enviaré los detalles por correo cuando finalice."
+- "He iniciado la tarea. Te mandaré el resultado por e-mail en cuanto termine."
 
 ---
 
-Usuario:
-
-> ¿Qué hora es?
-
-Nova-2:
-
-> Son las 15:42.
-
----
-
-## Regla
-
-No utilizar confirmaciones adicionales.
-
-No utilizar coletillas.
-
-La respuesta final es suficiente.
-
----
-
-# 8. Operaciones medias
-
-## Definición
-
-Duración esperada entre 1 y 10 segundos.
-
-Ejemplos:
-
-- Consultar APIs externas.
-- Consultar información remota.
-- Obtener estados de servicios externos.
-- Búsquedas simples.
-
----
-
-## Flujo
-
-```text
-Audio ON
-        ↓
-STT
-        ↓
-Audio OFF
-        ↓
-Confirmación breve
-        ↓
-Resultado
-```
-
----
-
-## Objetivo
-
-Reducir incertidumbre durante la espera adicional.
-
----
-
-## Confirmaciones válidas
-
-Las confirmaciones deben indicar acción.
-
-Ejemplos:
-
-- "Consultándolo."
-- "Comprobándolo."
-- "Buscando información."
-- "Revisándolo."
-
----
-
-## Confirmaciones no válidas
-
-Evitar:
-
-- "Procesando petición."
-- "Cargando."
-- "Espere."
-- "Un momento." (salvo casos excepcionales)
-
-Las confirmaciones deben reflejar la acción realizada.
-
----
-
-## Ejemplo
-
-Usuario:
-
-> ¿Qué tiempo hace?
-
-Nova-2:
-
-> Consultándolo.
-
-(...)
-
-> 22 grados.
-
----
-
-# 9. Operaciones largas
-
-## Definición
-
-Duración esperada superior a 10 segundos.
-
-Ejemplos:
-
-- Actualizaciones.
-- Automatizaciones complejas.
-- Procesos de mantenimiento.
-- Análisis extensos.
-- Futuros procesos MCP.
-
----
-
-## Flujo
-
-```text
-Audio ON
-        ↓
-STT
-        ↓
-Audio OFF
-        ↓
-Aceptación
-        ↓
-Ejecución asíncrona
-        ↓
-Notificación posterior
-```
-
----
-
-## Objetivo
-
-Evitar bloquear al usuario.
-
-Nova-2 no debe mantener una espera larga abierta.
-
----
-
-## Mensajes válidos
-
-- "He comenzado la tarea."
-- "La operación está en marcha."
-- "Te avisaré cuando termine."
-
----
-
-## Regla
-
-La conversación termina aquí.
-
-El resultado llegará posteriormente mediante el canal correspondiente.
-
----
-
-# 10. Gestión de errores
+# 7. Gestión de errores
 
 Los errores deben comunicarse inmediatamente.
 
@@ -378,7 +194,7 @@ No deben existir estados ambiguos.
 
 ---
 
-# 11. Silencio como herramienta UX
+# 8. Silencio como herramienta UX
 
 El silencio es una herramienta válida.
 
@@ -396,7 +212,7 @@ No debe añadirse ninguna capa adicional.
 
 ---
 
-# 12. Consistencia
+# 9. Consistencia
 
 Todas las interacciones deben seguir este modelo independientemente del plugin utilizado.
 
@@ -408,7 +224,7 @@ Nunca en la experiencia de interacción.
 
 ---
 
-# 13. Evolución futura
+# 10. Evolución futura
 
 Este modelo está diseñado para Nova-2.
 
@@ -428,7 +244,7 @@ Sin embargo, deberán mantener los principios fundamentales:
 
 ---
 
-# 14. Resumen
+# 11. Resumen
 
 Nova-2 debe garantizar que el usuario siempre sepa:
 

@@ -66,3 +66,30 @@ async def test_handle_error_all_mappings(mocker):
             result = await error_handler.handle_error(exc)
             assert result == f"bytes of {expected_filename}".encode()
             assert expected_filename in opened_path[0]
+
+
+@pytest.mark.asyncio
+async def test_handle_error_text_mappings(mocker):
+    mock_tts = mocker.patch("app.clients.tts_client.synthesize_speech", return_value=b"fake tts")
+    
+    test_cases = [
+        (STTEmptyTranscriptionError(""), "No he entendido lo que has dicho."),
+        (STTNullResponseError(""), "No he podido completar la operación."),
+        (STTUnavailableError(""), "El servicio de reconocimiento de voz no está disponible."),
+        (OrchestratorResponseError(""), "No he podido completar la operación."),
+        (OrchestratorUnavailableError(""), "El servicio solicitado no está disponible."),
+        (TTSResponseError(""), "Ha ocurrido un error interno."),
+        (TTSUnavailableError(""), "Ha ocurrido un error interno."),
+        (ValueError(""), "Ha ocurrido un error interno."),
+    ]
+    
+    for exc, expected_text in test_cases:
+        mock_tts.reset_mock()
+        if isinstance(exc, (TTSResponseError, TTSUnavailableError)):
+            mocker.patch("builtins.open", mock_open(read_data=b"fatal error emergency bytes"))
+            await error_handler.handle_error(exc)
+            mock_tts.assert_not_called()
+        else:
+            await error_handler.handle_error(exc)
+            mock_tts.assert_called_once_with(expected_text)
+
