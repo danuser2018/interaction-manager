@@ -21,7 +21,14 @@ Los cambios se agrupan en las siguientes categorías:
 
 ## Sin publicar
 
+### Cambiado
+
+- Actualizado `tts_client.py` para consumir el endpoint versionado `/v1/synthesize` del servicio de síntesis de voz (TTS).
+
+### Añadido
+
 - Nueva carpeta `.agents/skills` con información para desarrollo con IA.
+
 
 ## [1.4.0] 2026-06-23
 
