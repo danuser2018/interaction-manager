@@ -11,7 +11,7 @@ async def synthesize_speech(text: str) -> bytes:
     Expected request: {"msg": "Actualmente hace 22 grados"}
     Expected response: audio/wav
     """
-    url = f"{settings.TTS_BASE_URL}/synthesize"
+    url = f"{settings.TTS_BASE_URL}/v1/synthesize"
     logger.info(f"Sending text to TTS Service ({url})")
     
     try:
