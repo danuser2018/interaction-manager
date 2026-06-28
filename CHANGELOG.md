@@ -19,6 +19,10 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## Sin publicar
+
+- Nueva carpeta `.agents/skills` con información para desarrollo con IA.
+
 ## [1.4.0] 2026-06-23
 
 ### Cambiado
