@@ -223,7 +223,7 @@ Respuesta esperada:
 Endpoint utilizado:
 
 ```http
-POST /synthesize
+POST /v1/synthesize
 ```
 
 Petición:
@@ -244,18 +244,20 @@ audio/wav
 
 Toda la configuración se realiza mediante variables de entorno.
 
-| Variable              | Obligatoria | Descripción               |
-| --------------------- | ----------- | ------------------------- |
-| STT_BASE_URL          | Sí          | URL base del servicio STT |
-| ORCHESTRATOR_BASE_URL | Sí          | URL base del Orchestrator |
-| TTS_BASE_URL          | Sí          | URL base del servicio TTS |
-| INPUT_DIR             | No          | Carpeta de entrada        |
-| PROCESSING_DIR        | No          | Carpeta de procesamiento  |
-| OUTPUT_DIR            | No          | Carpeta de salida         |
-| ERROR_DIR             | No          | Carpeta de errores        |
-| POLL_INTERVAL_SECONDS | No          | Intervalo de sondeo       |
-| DEFAULT_LANGUAGE      | No          | Idioma enviado al STT     |
-| LOG_LEVEL             | No          | Nivel de logging          |
+| Variable              | Obligatoria | Descripción                                           |
+| --------------------- | ----------- | ----------------------------------------------------- |
+| STT_BASE_URL          | Sí          | URL base del servicio STT                             |
+| ORCHESTRATOR_BASE_URL | Sí          | URL base del Orchestrator                             |
+| TTS_BASE_URL          | Sí          | URL base del servicio TTS                             |
+| INPUT_DIR             | No          | Carpeta de entrada                                    |
+| PROCESSING_DIR        | No          | Carpeta de procesamiento                              |
+| OUTPUT_DIR            | No          | Carpeta de salida                                     |
+| ERROR_DIR             | No          | Carpeta de errores                                    |
+| EMERGENCY_AUDIO_DIR   | No          | Carpeta con audios de emergencia pregrabados          |
+| INTERACTION_AUDIO_FILE| No          | Ruta al archivo de audio de feedback (espera)         |
+| POLL_INTERVAL_SECONDS | No          | Intervalo de sondeo                                   |
+| DEFAULT_LANGUAGE      | No          | Idioma enviado al STT                                 |
+| LOG_LEVEL             | No          | Nivel de logging                                      |
 
 Valores por defecto:
 
@@ -264,6 +266,8 @@ INPUT_DIR=/data/input
 PROCESSING_DIR=/data/processing
 OUTPUT_DIR=/data/output
 ERROR_DIR=/data/error
+EMERGENCY_AUDIO_DIR=/data/emergency
+INTERACTION_AUDIO_FILE=/data/interaction.wav
 
 POLL_INTERVAL_SECONDS=1
 DEFAULT_LANGUAGE=auto
@@ -378,7 +382,7 @@ interaction-manager/
 │   │   └── interaction_pipeline.py
 │   ├── config/
 │   │   └── settings.py
-│   ├── models/
+│   ├── exceptions.py
 │   └── main.py
 ├── tests/
 ├── Dockerfile

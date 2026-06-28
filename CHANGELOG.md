@@ -19,6 +19,25 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.6.0] 2026-06-29
+
+### Añadido
+
+- Registro y logging de los tiempos de procesamiento en `app/services/file_watcher.py` (usando `time.perf_counter()`).
+
+### Cambiado
+
+- Actualizado `UX_INTERACTION_GUIDE.md` para unificar el criterio de duración del audio de espera (activo durante todo el pipeline) y remover la clasificación y confirmaciones verbales de operaciones.
+- Añadida regla de límite máximo de 10 segundos en operaciones síncronas y derivación asíncrona por e-mail para procesos largos en `UX_INTERACTION_GUIDE.md`.
+- Modificado `docs/audio_feedback.md` para eliminar la regla de omisión del audio de espera en ejecuciones rápidas (Regla 4).
+- Actualizado `app/services/error_handler.py` (`ERROR_MAPPING`) para alinear semánticamente los textos informativos UX con los archivos de audio de emergencia pregrabados.
+- Corregido `README.md` actualizando el endpoint del servicio TTS (`/v1/synthesize`), documentando las variables `EMERGENCY_AUDIO_DIR` e `INTERACTION_AUDIO_FILE` en la tabla de configuración, y corrigiendo el árbol de estructura de archivos.
+- Corregido error tipográfico en `docs/error_handling.md` (ruta `/error` por la correcta `/data/error`).
+
+### Corregido
+
+- Control de excepciones en el movimiento inicial de archivos (`shutil.move`) en `app/services/file_watcher.py` para generar y depositar un audio de error si falla, previniendo estados de silencio ambiguo.
+
 ## [1.5.0] 2026-06-28
 
 ### Cambiado

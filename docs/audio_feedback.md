@@ -132,16 +132,6 @@ interaction.wav debe detenerse en cuanto exista una respuesta válida del TTS.
 
 ### Regla 4
 
-Si la pipeline finaliza rápidamente, el sistema puede omitir interaction.wav.
-
-No debe forzarse una duración mínima artificial.
-
-Priorizar siempre la rapidez percibida.
-
----
-
-### Regla 5
-
 La reproducción de este audio no debe bloquear el pipeline principal.
 
 El procesamiento debe continuar independientemente de la reproducción.
