@@ -19,6 +19,16 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.7.0] 2026-07-01
+
+### Añadido
+
+- Nueva variable de configuración `TTS_TIMEOUT` en `app/config/settings.py` (con valor por defecto de 30.0 segundos) configurable mediante variable de entorno.
+
+### Cambiado
+
+- Configurado el cliente HTTP en `app/clients/tts_client.py` para usar `settings.TTS_TIMEOUT` en lugar del timeout por defecto de httpx de 5 segundos, evitando timeouts al utilizar modelos de voz pesados o de mayor calidad.
+
 ## [1.6.0] 2026-06-29
 
 ### Añadido

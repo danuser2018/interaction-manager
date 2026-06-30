@@ -15,7 +15,7 @@ async def synthesize_speech(text: str) -> bytes:
     logger.info(f"Sending text to TTS Service ({url})")
     
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=settings.TTS_TIMEOUT) as client:
             payload = {"msg": text}
             response = await client.post(url, json=payload)
             

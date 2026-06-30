@@ -15,6 +15,7 @@ ERROR_DIR = os.getenv("ERROR_DIR", "/data/error")
 POLL_INTERVAL_SECONDS = float(os.getenv("POLL_INTERVAL_SECONDS", "1"))
 DEFAULT_LANGUAGE = os.getenv("DEFAULT_LANGUAGE", "auto")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+TTS_TIMEOUT = float(os.getenv("TTS_TIMEOUT", "30.0"))
 EMERGENCY_AUDIO_DIR = os.getenv(
     "EMERGENCY_AUDIO_DIR",
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "audio", "emergency"))

@@ -256,6 +256,7 @@ Toda la configuración se realiza mediante variables de entorno.
 | EMERGENCY_AUDIO_DIR   | No          | Carpeta con audios de emergencia pregrabados          |
 | INTERACTION_AUDIO_FILE| No          | Ruta al archivo de audio de feedback (espera)         |
 | POLL_INTERVAL_SECONDS | No          | Intervalo de sondeo                                   |
+| TTS_TIMEOUT           | No          | Tiempo de espera máximo en segundos para peticiones a tts-capability |
 | DEFAULT_LANGUAGE      | No          | Idioma enviado al STT                                 |
 | LOG_LEVEL             | No          | Nivel de logging                                      |
 
@@ -270,6 +271,7 @@ EMERGENCY_AUDIO_DIR=/data/emergency
 INTERACTION_AUDIO_FILE=/data/interaction.wav
 
 POLL_INTERVAL_SECONDS=1
+TTS_TIMEOUT=30.0
 DEFAULT_LANGUAGE=auto
 LOG_LEVEL=INFO
 ```
