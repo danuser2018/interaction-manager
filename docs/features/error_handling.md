@@ -233,6 +233,9 @@ No debe existir ningún escenario conocido en el que un usuario emita una petici
 
 ## Estrategia de resiliencia para TTS
 
+> [!NOTE]
+> **Actualización (Julio 2026)**: El catálogo original de múltiples archivos de audio de emergencia (`fatal_error.wav`, `stt_not_understood.wav`, etc.) especificado en esta sección ha sido simplificado y unificado en un único archivo de audio de emergencia local denominado `emergency.wav` (basado en el mensaje de "No he podido completar la operación"). Para más información sobre este cambio y su implementación, consulta el documento de refinamiento [unique_emergency_audio.md](../refinements/unique_emergency_audio.md).
+
 ### Contexto
 
 La arquitectura propuesta asume que todos los errores deben comunicarse al usuario.
@@ -280,6 +283,9 @@ Deben estar disponibles localmente dentro del propio servicio.
 
 ## Emergency Audio Pack
 
+> [!IMPORTANT]
+> **Obsolescencia**: Este paquete de múltiples audios ha sido simplificado y unificado en un único archivo de audio de emergencia local `emergency.wav` (ver nota de actualización al inicio de la sección [Estrategia de resiliencia para TTS](#estrategia-de-resiliencia-para-tts)).
+
 Se recomienda incluir un conjunto mínimo de mensajes de contingencia.
 
 Ejemplos:
@@ -322,6 +328,9 @@ Audio de emergencia
 ---
 
 ## Mensajes recomendados
+
+> [!IMPORTANT]
+> **Obsolescencia**: Los siguientes mensajes múltiples individuales corresponden al diseño original y han sido unificados en el audio único `emergency.wav`.
 
 ### Audio: stt_not_understood.wav
 
