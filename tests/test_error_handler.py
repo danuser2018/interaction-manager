@@ -23,49 +23,59 @@ async def test_handle_error_stt_empty_tts_success(mocker):
 @pytest.mark.asyncio
 async def test_handle_error_stt_empty_tts_failure(mocker):
     mock_tts = mocker.patch("app.clients.tts_client.synthesize_speech", side_effect=Exception("TTS failed"))
-    mocker.patch("builtins.open", mock_open(read_data=b"emergency stt not understood bytes"))
+    opened_path = []
     
-    result = await error_handler.handle_error(STTEmptyTranscriptionError("empty"))
-    
-    assert result == b"emergency stt not understood bytes"
+    def my_open(path, mode):
+        opened_path.append(path)
+        return mock_open(read_data=b"emergency bytes")(path, mode)
+        
+    with patch("builtins.open", my_open):
+        result = await error_handler.handle_error(STTEmptyTranscriptionError("empty"))
+        assert result == b"emergency bytes"
+        assert opened_path[0].endswith("emergency.wav")
     mock_tts.assert_called_once_with("No he entendido lo que has dicho.")
 
 @pytest.mark.asyncio
 async def test_handle_error_tts_error_direct_emergency(mocker):
     mock_tts = mocker.patch("app.clients.tts_client.synthesize_speech")
-    mocker.patch("builtins.open", mock_open(read_data=b"emergency fatal error bytes"))
+    opened_path = []
     
-    result = await error_handler.handle_error(TTSUnavailableError("down"))
-    
-    assert result == b"emergency fatal error bytes"
+    def my_open(path, mode):
+        opened_path.append(path)
+        return mock_open(read_data=b"emergency bytes")(path, mode)
+        
+    with patch("builtins.open", my_open):
+        result = await error_handler.handle_error(TTSUnavailableError("down"))
+        assert result == b"emergency bytes"
+        assert opened_path[0].endswith("emergency.wav")
     mock_tts.assert_not_called()
 
 @pytest.mark.asyncio
 async def test_handle_error_all_mappings(mocker):
-    # Test that each exception maps to correct emergency file when TTS fails
+    # Test that each exception maps to emergency.wav when TTS fails
     mocker.patch("app.clients.tts_client.synthesize_speech", side_effect=Exception("skip tts"))
     
     test_cases = [
-        (STTEmptyTranscriptionError(""), "stt_not_understood.wav"),
-        (STTNullResponseError(""), "operation_failed.wav"),
-        (STTUnavailableError(""), "stt_unavailable.wav"),
-        (OrchestratorResponseError(""), "operation_failed.wav"),
-        (OrchestratorUnavailableError(""), "service_unavailable.wav"),
-        (TTSResponseError(""), "fatal_error.wav"),
-        (TTSUnavailableError(""), "fatal_error.wav"),
-        (ValueError("generic error"), "fatal_error.wav"),
+        STTEmptyTranscriptionError(""),
+        STTNullResponseError(""),
+        STTUnavailableError(""),
+        OrchestratorResponseError(""),
+        OrchestratorUnavailableError(""),
+        TTSResponseError(""),
+        TTSUnavailableError(""),
+        ValueError("generic error"),
     ]
     
-    for exc, expected_filename in test_cases:
+    for exc in test_cases:
         opened_path = []
         def my_open(path, mode):
             opened_path.append(path)
-            return mock_open(read_data=f"bytes of {expected_filename}".encode())(path, mode)
+            return mock_open(read_data=b"emergency bytes")(path, mode)
             
         with patch("builtins.open", my_open):
             result = await error_handler.handle_error(exc)
-            assert result == f"bytes of {expected_filename}".encode()
-            assert expected_filename in opened_path[0]
+            assert result == b"emergency bytes"
+            assert opened_path[0].endswith("emergency.wav")
 
 
 @pytest.mark.asyncio
@@ -86,7 +96,7 @@ async def test_handle_error_text_mappings(mocker):
     for exc, expected_text in test_cases:
         mock_tts.reset_mock()
         if isinstance(exc, (TTSResponseError, TTSUnavailableError)):
-            mocker.patch("builtins.open", mock_open(read_data=b"fatal error emergency bytes"))
+            mocker.patch("builtins.open", mock_open(read_data=b"emergency bytes"))
             await error_handler.handle_error(exc)
             mock_tts.assert_not_called()
         else:

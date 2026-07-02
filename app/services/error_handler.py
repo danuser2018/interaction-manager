@@ -14,56 +14,34 @@ from app.exceptions import (
 
 logger = logging.getLogger(__name__)
 
-# Map exceptions to their UX messages and fallback emergency audio files
+# Map exceptions to their UX messages
 ERROR_MAPPING = {
-    STTEmptyTranscriptionError: (
-        "No he entendido lo que has dicho.",
-        "stt_not_understood.wav"
-    ),
-    STTNullResponseError: (
-        "No he podido completar la operación.",
-        "operation_failed.wav"
-    ),
-    STTUnavailableError: (
-        "El servicio de reconocimiento de voz no está disponible.",
-        "stt_unavailable.wav"
-    ),
-    OrchestratorResponseError: (
-        "No he podido completar la operación.",
-        "operation_failed.wav"
-    ),
-    OrchestratorUnavailableError: (
-        "El servicio solicitado no está disponible.",
-        "service_unavailable.wav"
-    ),
-    TTSResponseError: (
-        "Ha ocurrido un error interno.",
-        "fatal_error.wav"
-    ),
-    TTSUnavailableError: (
-        "Ha ocurrido un error interno.",
-        "fatal_error.wav"
-    ),
+    STTEmptyTranscriptionError: "No he entendido lo que has dicho.",
+    STTNullResponseError: "No he podido completar la operación.",
+    STTUnavailableError: "El servicio de reconocimiento de voz no está disponible.",
+    OrchestratorResponseError: "No he podido completar la operación.",
+    OrchestratorUnavailableError: "El servicio solicitado no está disponible.",
+    TTSResponseError: "Ha ocurrido un error interno.",
+    TTSUnavailableError: "Ha ocurrido un error interno.",
 }
 
 async def handle_error(error: Exception) -> bytes:
     """
     Translates an exception to a UX message, attempts TTS synthesis if possible,
-    and falls back to pre-recorded emergency audio if TTS fails or is unavailable.
+    and falls back to a unique pre-recorded emergency audio if TTS fails or is unavailable.
     """
     logger.info(f"Handling error: {error} ({type(error).__name__})")
     
-    # Translate exception to UX message and emergency filename
+    # Default UX message
     ux_message = "Ha ocurrido un error interno."
-    emergency_filename = "fatal_error.wav"
     
-    for exc_class, (msg, filename) in ERROR_MAPPING.items():
+    # Resolve the UX message from the mapping
+    for exc_class, msg in ERROR_MAPPING.items():
         if isinstance(error, exc_class):
             ux_message = msg
-            emergency_filename = filename
             break
             
-    logger.debug(f"Translated to UX message: '{ux_message}', fallback audio: '{emergency_filename}'")
+    logger.debug(f"Translated to UX message: '{ux_message}'")
     
     # Try TTS synthesis unless the error is TTS-related
     if not isinstance(error, (TTSResponseError, TTSUnavailableError)):
@@ -78,8 +56,8 @@ async def handle_error(error: Exception) -> bytes:
     else:
         logger.info("Error is TTS-related. Bypassing TTS synthesis and using emergency audio directly.")
 
-    # Fallback to emergency audio
-    emergency_path = os.path.join(settings.EMERGENCY_AUDIO_DIR, emergency_filename)
+    # Fallback to the single emergency audio file
+    emergency_path = os.path.join(settings.EMERGENCY_AUDIO_DIR, "emergency.wav")
     try:
         logger.info(f"Loading emergency audio from: {emergency_path}")
         with open(emergency_path, "rb") as f:
