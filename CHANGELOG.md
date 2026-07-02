@@ -19,6 +19,12 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.9.0] 2026-07-02
+
+### Cambiado
+
+- Se modifica el audio de emergencia para los casos de error en los que no se puede acceder al TTS (o este falla). Ahora es un sonido sin voz, de forma que aunque cambie el modelo de voz, el mensaje sigue siendo consistente.
+
 ## [1.8.0] 2026-07-02
 
 ### Cambiado
