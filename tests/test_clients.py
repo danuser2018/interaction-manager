@@ -33,20 +33,54 @@ async def test_get_transcription_failure(mocker):
         await stt_client.get_transcription("fake_path.wav")
 
 @pytest.mark.asyncio
-async def test_execute_interaction(mocker):
+async def test_resolve_intent_success(mocker):
+    mock_response = Mock()
+    mock_response.json.return_value = {"steps": [{"plugin": "dummy"}]}
+    
+    mock_post = AsyncMock(return_value=mock_response)
+    mocker.patch("httpx.AsyncClient.post", new=mock_post)
+    
+    result = await orchestrator_client.resolve_intent("hola mundo")
+    assert result == {"steps": [{"plugin": "dummy"}]}
+    mock_post.assert_called_once()
+    assert mock_post.call_args[1]["json"] == {"text": "hola mundo"}
+
+@pytest.mark.asyncio
+async def test_resolve_intent_failure(mocker):
+    mocker.patch("httpx.AsyncClient.post", side_effect=httpx.ConnectError("Connection failed"))
+    
+    with pytest.raises(OrchestratorUnavailableError):
+        await orchestrator_client.resolve_intent("hola mundo")
+
+@pytest.mark.asyncio
+async def test_resolve_intent_http_error(mocker):
+    mock_response = Mock()
+    mock_response.status_code = 422
+    mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+        "Unprocessable Entity", request=Mock(), response=mock_response
+    )
+    
+    mock_post = AsyncMock(return_value=mock_response)
+    mocker.patch("httpx.AsyncClient.post", new=mock_post)
+    
+    with pytest.raises(OrchestratorResponseError):
+        await orchestrator_client.resolve_intent("hola mundo")
+
+@pytest.mark.asyncio
+async def test_execute_plan_success(mocker):
     mock_response = Mock()
     mock_response.json.return_value = {"success": True, "speech": "hola a ti tambien"}
     
     mock_post = AsyncMock(return_value=mock_response)
     mocker.patch("httpx.AsyncClient.post", new=mock_post)
     
-    result = await orchestrator_client.execute_interaction("hola mundo")
+    result = await orchestrator_client.execute_plan({"steps": []})
     assert result == "hola a ti tambien"
     mock_post.assert_called_once()
-    assert mock_post.call_args[1]["json"] == {"text": "hola mundo"}
+    assert mock_post.call_args[1]["json"] == {"steps": []}
 
 @pytest.mark.asyncio
-async def test_execute_interaction_unsuccessful(mocker):
+async def test_execute_plan_unsuccessful(mocker):
     mock_response = Mock()
     mock_response.json.return_value = {"success": False, "speech": ""}
     
@@ -54,14 +88,28 @@ async def test_execute_interaction_unsuccessful(mocker):
     mocker.patch("httpx.AsyncClient.post", new=mock_post)
     
     with pytest.raises(OrchestratorResponseError):
-        await orchestrator_client.execute_interaction("hola mundo")
+        await orchestrator_client.execute_plan({"steps": []})
 
 @pytest.mark.asyncio
-async def test_execute_interaction_failure(mocker):
+async def test_execute_plan_failure(mocker):
     mocker.patch("httpx.AsyncClient.post", side_effect=httpx.TimeoutException("Timeout"))
     
     with pytest.raises(OrchestratorUnavailableError):
-        await orchestrator_client.execute_interaction("hola mundo")
+        await orchestrator_client.execute_plan({"steps": []})
+
+@pytest.mark.asyncio
+async def test_execute_plan_http_error(mocker):
+    mock_response = Mock()
+    mock_response.status_code = 400
+    mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+        "Bad Request", request=Mock(), response=mock_response
+    )
+    
+    mock_post = AsyncMock(return_value=mock_response)
+    mocker.patch("httpx.AsyncClient.post", new=mock_post)
+    
+    with pytest.raises(OrchestratorResponseError):
+        await orchestrator_client.execute_plan({"steps": []})
 
 @pytest.mark.asyncio
 async def test_synthesize_speech(mocker):

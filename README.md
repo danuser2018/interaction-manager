@@ -195,26 +195,70 @@ Respuesta esperada:
 
 ### Orchestrator
 
-Endpoint utilizado:
+Endpoints utilizados:
 
+#### 1. Resolución de Intención
 ```http
-POST /api/v1/execute
+POST /api/v1/resolve
 ```
 
-Petición:
-
+Petición (UserRequest):
 ```json
 {
   "text": "qué tiempo hace hoy"
 }
 ```
 
-Respuesta esperada:
+Respuesta esperada (ExecutionPlan):
+```json
+{
+  "steps": [
+    {
+      "plugin": "weather",
+      "confidence": 1.0,
+      "parameters": {
+        "location": "today"
+      },
+      "context": {
+        "raw_text": "qué tiempo hace hoy",
+        "normalized_text": "que tiempo hace hoy"
+      }
+    }
+  ]
+}
+```
 
+#### 2. Ejecución de Plan
+```http
+POST /api/v1/execute-plan
+```
+
+Petición (ExecutionPlan):
+```json
+{
+  "steps": [
+    {
+      "plugin": "weather",
+      "confidence": 1.0,
+      "parameters": {
+        "location": "today"
+      },
+      "context": {
+        "raw_text": "qué tiempo hace hoy",
+        "normalized_text": "que tiempo hace hoy"
+      }
+    }
+  ]
+}
+```
+
+Respuesta esperada (AssistantResponse):
 ```json
 {
   "success": true,
-  "speech": "Actualmente hace 22 grados"
+  "plugin_used": "weather",
+  "speech": "Actualmente hace 22 grados",
+  "execution_time_ms": 120
 }
 ```
 
