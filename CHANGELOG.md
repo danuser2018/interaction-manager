@@ -19,6 +19,15 @@ Los cambios se agrupan en las siguientes categorías:
 
 ---
 
+## [1.10.0] 2026-07-15
+
+### Cambiado
+
+- Refactorización de la integración con el Orquestador para migrar al modelo desacoplado `Resolve -> Execute Plan`.
+- Modificación del cliente `app/clients/orchestrator_client.py` implementando los métodos `resolve_intent` y `execute_plan` en sustitución del método legado `execute_interaction`.
+- Actualización de `app/services/interaction_pipeline.py` para invocar secuencialmente los endpoints `/resolve` y `/execute-plan`, agregando logs estructurados en inglés y medición detallada de tiempos de ejecución en segundos.
+- Adaptación y adición de pruebas unitarias en `tests/test_clients.py` y `tests/test_pipeline.py` para verificar el nuevo flujo, la gestión de excepciones de conexión HTTP y errores de validación.
+
 ## [1.9.0] 2026-07-02
 
 ### Cambiado
