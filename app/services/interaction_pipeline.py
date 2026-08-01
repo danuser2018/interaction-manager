@@ -56,3 +56,49 @@ async def process_interaction(audio_file_path: str) -> bytes:
     
     return audio_bytes
 
+
+async def process_shortcut_interaction(shortcut: str, channel: str, correlation_id: str) -> bytes:
+    """
+    Executes a direct shortcut interaction pipeline without STT or intent resolution:
+    1. Builds ExecutionPlan directly for shortcut plugin with 100.0 confidence.
+    2. Orchestrator: executes plan and returns response text.
+    3. TTS: synthesizes response text to audio bytes.
+    """
+    logger.info(f"Starting shortcut interaction pipeline for '{shortcut}' [correlation_id={correlation_id}, channel={channel}]")
+    
+    plan = {
+        "steps": [
+            {
+                "plugin": shortcut,
+                "confidence": 100.0,
+                "parameters": {},
+                "channel": channel,
+                "context": {
+                    "raw_text": shortcut,
+                    "normalized_text": shortcut,
+                    "correlation_id": correlation_id,
+                    "channel": channel,
+                    "metadata": {}
+                },
+                "security": {}
+            }
+        ]
+    }
+    
+    logger.info("Executing shortcut plan on Orchestrator...")
+    execute_start = time.perf_counter()
+    response_text = await orchestrator_client.execute_plan(plan)
+    execute_time = time.perf_counter() - execute_start
+    logger.info(f"Assistant response received in {execute_time:.4f}s for shortcut '{shortcut}'.")
+    
+    if not response_text:
+        raise OrchestratorResponseError("Orchestrator returned an empty response.")
+    
+    audio_bytes = await tts_client.synthesize_speech(response_text)
+    if not audio_bytes:
+        raise TTSResponseError("TTS service returned empty audio.")
+    logger.info("TTS audio synthesized successfully for shortcut.")
+    
+    return audio_bytes
+
+

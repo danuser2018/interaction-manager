@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from nova_event_bus import EventBus
-from app.events import SpeechCapturedEvent
+from app.events import SpeechCapturedEvent, ExecuteShortcutCommand
 from app.services.event_subscriber import InteractionEventSubscriber
 from app.config import settings
 
@@ -16,7 +16,9 @@ async def test_start_subscribes_to_event(mocker):
     await subscriber.start()
 
     mock_bus.connect.assert_awaited_once()
-    mock_bus.subscribe.assert_awaited_once_with(SpeechCapturedEvent, subscriber._handle_speech_captured)
+    mock_bus.subscribe.assert_any_call(SpeechCapturedEvent, subscriber._handle_speech_captured)
+    mock_bus.subscribe.assert_any_call(ExecuteShortcutCommand, subscriber._handle_execute_shortcut)
+
 
 
 @pytest.mark.asyncio

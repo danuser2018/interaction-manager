@@ -85,6 +85,7 @@ Interaction Manager forma parte de una arquitectura más amplia:
 
 El ciclo de vida de una petición sigue los siguientes pasos:
 
+### Flujo de Voz
 ```text
 1. mic-daemon emite un evento SpeechCapturedEvent en NATS (event.speech.captured)
 
@@ -108,6 +109,22 @@ El ciclo de vida de una petición sigue los siguientes pasos:
 
 11. Se elimina el archivo de /data/processing
 ```
+
+### Flujo de Shortcut CLI (novactl)
+```text
+1. novactl emite un comando ExecuteShortcutCommand en NATS (command.interaction.execute-shortcut)
+
+2. interaction-manager recibe el comando y construye un ExecutionPlan determinista con el plugin especificado y confidence=100.0
+
+3. Se envía el plan directamente a Orchestrator (POST /api/v1/execute-plan)
+
+4. Se obtiene la respuesta textual del plugin
+
+5. Se envía la respuesta al servicio TTS
+
+6. Se almacena el audio generado WAV en /data/output
+```
+
 
 ## Gestión de estados mediante carpetas
 
