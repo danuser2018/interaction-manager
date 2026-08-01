@@ -1,10 +1,11 @@
 import os
 import sys
-import time
 import asyncio
 import logging
+from nova_event_bus import NatsEventBus
 from app.config import settings
-from app.services import file_watcher
+from app.services.event_subscriber import InteractionEventSubscriber
+
 
 def setup_logging():
     logging.basicConfig(
@@ -12,6 +13,7 @@ def setup_logging():
         format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)]
     )
+
 
 def ensure_directories():
     directories = [
@@ -24,24 +26,27 @@ def ensure_directories():
         os.makedirs(directory, exist_ok=True)
         logging.getLogger(__name__).debug(f"Ensured directory exists: {directory}")
 
+
 async def main():
     setup_logging()
     logger = logging.getLogger(__name__)
-    logger.info("Starting Interaction Manager")
+    logger.info("Starting Interaction Manager (Event-Driven Mode)")
 
     ensure_directories()
 
-    loop = asyncio.get_running_loop()
-    observer = file_watcher.start_watcher(loop)
+    event_bus = NatsEventBus(url=settings.NATS_URL)
+    subscriber = InteractionEventSubscriber(event_bus)
+
+    await subscriber.start()
 
     try:
         while True:
-            await asyncio.sleep(1)
-    except KeyboardInterrupt:
-        logger.info("Stopping Interaction Manager")
-        observer.stop()
+            await asyncio.sleep(3600)
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        logger.info("Stopping Interaction Manager...")
     finally:
-        observer.join()
+        await subscriber.stop()
+
 
 if __name__ == "__main__":
     try:
