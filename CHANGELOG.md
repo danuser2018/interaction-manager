@@ -38,6 +38,10 @@ Los cambios se agrupan en las siguientes categorías:
 - Eliminación del módulo `app/services/file_watcher.py` y del parámetro obsoleto `POLL_INTERVAL_SECONDS`.
 - Eliminación de la suite de pruebas obsoleta `tests/test_watcher.py`.
 
+### Corregido
+
+- Corregido `Dockerfile` añadiendo la instalación de `git` durante el build de la imagen, necesaria para que `pip` pueda resolver la dependencia `nova-event-bus` desde su repositorio en GitHub. El binario `git` y la caché de `apt` se eliminan en la misma capa RUN para no incrementar el tamaño de la imagen.
+
 ## [1.10.0] 2026-07-15
 
 ### Cambiado
