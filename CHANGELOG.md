@@ -17,6 +17,12 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [1.11.1] - 2026-08-01
+
+### Corregido
+
+- Corregida la instanciación de `NatsEventBus` en `app/main.py` para adaptarse a la API de `nova-event-bus` 1.1.0: se sustituye el argumento obsoleto `url=` por `config=EventBusConfig(nats_url=...)`, resolviendo el `TypeError` que impedía el arranque del contenedor.
+
 ## [1.11.0] - 2026-08-01
 
 ### Añadido
