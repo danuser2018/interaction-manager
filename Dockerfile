@@ -6,7 +6,10 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove git \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY app/ ./app/
 COPY audio/ ./audio/
