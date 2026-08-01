@@ -9,3 +9,13 @@ class SpeechCapturedEvent(Event):
     correlation_id: str
     channel: str
     audio_path: str
+
+
+@event("command.interaction.execute-shortcut")
+@dataclass
+class ExecuteShortcutCommand(Event):
+    """Command event received to directly execute a shortcut plugin."""
+    correlation_id: str
+    shortcut: str
+    channel: str = "cli"
+

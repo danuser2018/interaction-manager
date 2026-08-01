@@ -17,11 +17,14 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
-## [1.11.1] - 2026-08-01
+## [1.12.0] - 2026-08-02
 
-### Corregido
+### Añadido
 
-- Corregida la instanciación de `NatsEventBus` en `app/main.py` para adaptarse a la API de `nova-event-bus` 1.1.0: se sustituye el argumento obsoleto `url=` por `config=EventBusConfig(nats_url=...)`, resolviendo el `TypeError` que impedía el arranque del contenedor.
+- Soporte para la ejecución directa de shortcuts desde la CLI (`novactl execute`) mediante la recepción del comando `ExecuteShortcutCommand` en NATS (`command.interaction.execute-shortcut`).
+- Método `process_shortcut_interaction` en `app/services/interaction_pipeline.py` para construir un `ExecutionPlan` determinista con `confidence: 100.0` y ejecutarlo directamente en Orchestrator sin pasar por STT ni resolución semántica.
+- Suscripción al comando `ExecuteShortcutCommand` en `InteractionEventSubscriber` (`app/services/event_subscriber.py`), con generación de audio de respuesta en `OUTPUT_DIR` y propagación de `correlation_id`.
+- Nueva suite de pruebas automatizadas en `tests/test_shortcut_execution.py`.
 
 ## [1.11.0] - 2026-08-01
 
@@ -47,6 +50,7 @@ Los cambios se agrupan en las siguientes categorías:
 ### Corregido
 
 - Corregido `Dockerfile` añadiendo la instalación de `git` durante el build de la imagen, necesaria para que `pip` pueda resolver la dependencia `nova-event-bus` desde su repositorio en GitHub. El binario `git` y la caché de `apt` se eliminan en la misma capa RUN para no incrementar el tamaño de la imagen.
+- Corregida la instanciación de `NatsEventBus` en `app/main.py` para adaptarse a la API de `nova-event-bus` 1.1.0: se sustituye el argumento obsoleto `url=` por `config=EventBusConfig(nats_url=...)`, resolviendo el `TypeError` que impedía el arranque del contenedor.
 
 ## [1.10.0] 2026-07-15
 

@@ -5,7 +5,7 @@ import asyncio
 import time
 from nova_event_bus import EventBus
 from app.config import settings
-from app.events import SpeechCapturedEvent
+from app.events import SpeechCapturedEvent, ExecuteShortcutCommand
 from app.services import interaction_pipeline, error_handler
 
 logger = logging.getLogger(__name__)
@@ -18,11 +18,13 @@ class InteractionEventSubscriber:
     async def start(self) -> None:
         await self._event_bus.connect()
         await self._event_bus.subscribe(SpeechCapturedEvent, self._handle_speech_captured)
-        logger.info("InteractionEventSubscriber successfully subscribed to event.speech.captured")
+        await self._event_bus.subscribe(ExecuteShortcutCommand, self._handle_execute_shortcut)
+        logger.info("InteractionEventSubscriber successfully subscribed to events and shortcut commands")
 
     async def stop(self) -> None:
         await self._event_bus.disconnect()
         logger.info("InteractionEventSubscriber disconnected from NATS broker")
+
 
     async def _handle_speech_captured(self, evt: SpeechCapturedEvent) -> None:
         logger.info(
@@ -131,3 +133,46 @@ class InteractionEventSubscriber:
                 os.remove(path)
         except Exception as e:
             logger.warning(f"Failed to remove file {path}: {e}")
+
+    async def _handle_execute_shortcut(self, cmd: ExecuteShortcutCommand) -> None:
+        logger.info(
+            f"Received ExecuteShortcutCommand: correlation_id={cmd.correlation_id}, "
+            f"shortcut={cmd.shortcut}, channel={cmd.channel}"
+        )
+        output_filename = f"shortcut_{cmd.correlation_id}.wav"
+        output_path = os.path.join(settings.OUTPUT_DIR, output_filename)
+
+        feedback_output_path = os.path.join(settings.OUTPUT_DIR, f"interaction_{output_filename}")
+        feedback_copied = False
+
+        try:
+            if os.path.exists(settings.INTERACTION_AUDIO_FILE):
+                await asyncio.to_thread(shutil.copy, settings.INTERACTION_AUDIO_FILE, feedback_output_path)
+                logger.info("Started playing interaction feedback audio for shortcut")
+                feedback_copied = True
+
+            audio_bytes = await interaction_pipeline.process_shortcut_interaction(
+                shortcut=cmd.shortcut,
+                channel=cmd.channel,
+                correlation_id=cmd.correlation_id,
+            )
+
+            if feedback_copied:
+                self._remove_file_silent(feedback_output_path)
+
+            with open(output_path, "wb") as f:
+                f.write(audio_bytes)
+
+            logger.info(f"Successfully processed shortcut '{cmd.shortcut}' and saved response to {output_path}")
+
+        except Exception as e:
+            logger.error(
+                f"Error executing shortcut '{cmd.shortcut}' [correlation_id={cmd.correlation_id}]: {e}",
+                exc_info=True,
+            )
+
+            if feedback_copied:
+                self._remove_file_silent(feedback_output_path)
+
+            await self._handle_processing_error(e, output_filename, output_path)
+
