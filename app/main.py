@@ -2,7 +2,7 @@ import os
 import sys
 import asyncio
 import logging
-from nova_event_bus import NatsEventBus
+from nova_event_bus import NatsEventBus, EventBusConfig
 from app.config import settings
 from app.services.event_subscriber import InteractionEventSubscriber
 
@@ -34,7 +34,7 @@ async def main():
 
     ensure_directories()
 
-    event_bus = NatsEventBus(url=settings.NATS_URL)
+    event_bus = NatsEventBus(config=EventBusConfig(nats_url=settings.NATS_URL))
     subscriber = InteractionEventSubscriber(event_bus)
 
     await subscriber.start()
