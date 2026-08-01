@@ -86,25 +86,27 @@ Interaction Manager forma parte de una arquitectura más amplia:
 El ciclo de vida de una petición sigue los siguientes pasos:
 
 ```text
-1. Nuevo archivo WAV aparece en /data/input
+1. mic-daemon emite un evento SpeechCapturedEvent en NATS (event.speech.captured)
 
-2. El archivo se mueve a /data/processing
+2. interaction-manager recibe el evento y resuelve la ruta del archivo WAV en /data/input
 
-3. Se envía al servicio STT
+3. El archivo se mueve a /data/processing
 
-4. Se obtiene la transcripción
+4. Se envía al servicio STT
 
-5. Se envía el texto al Orchestrator
+5. Se obtiene la transcripción
 
-6. Se obtiene la respuesta textual
+6. Se envía el texto al Orchestrator
 
-7. Se envía la respuesta al servicio TTS
+7. Se obtiene la respuesta textual
 
-8. Se recibe un WAV generado
+8. Se envía la respuesta al servicio TTS
 
-9. Se almacena en /data/output
+9. Se recibe un WAV generado
 
-10. Se elimina el archivo de /data/processing
+10. Se almacena en /data/output
+
+11. Se elimina el archivo de /data/processing
 ```
 
 ## Gestión de estados mediante carpetas
@@ -170,7 +172,7 @@ Este proyecto sigue los siguientes principios:
 
 * Python 3.12
 * HTTPX
-* Watchdog
+* nova-event-bus (NATS)
 * Docker
 * Docker Compose
 * Pytest
@@ -293,13 +295,13 @@ Toda la configuración se realiza mediante variables de entorno.
 | STT_BASE_URL          | Sí          | URL base del servicio STT                             |
 | ORCHESTRATOR_BASE_URL | Sí          | URL base del Orchestrator                             |
 | TTS_BASE_URL          | Sí          | URL base del servicio TTS                             |
+| NATS_URL              | No          | URL del servidor broker NATS                          |
 | INPUT_DIR             | No          | Carpeta de entrada                                    |
 | PROCESSING_DIR        | No          | Carpeta de procesamiento                              |
 | OUTPUT_DIR            | No          | Carpeta de salida                                     |
 | ERROR_DIR             | No          | Carpeta de errores                                    |
 | EMERGENCY_AUDIO_DIR   | No          | Carpeta con audios de emergencia pregrabados          |
 | INTERACTION_AUDIO_FILE| No          | Ruta al archivo de audio de feedback (espera)         |
-| POLL_INTERVAL_SECONDS | No          | Intervalo de sondeo                                   |
 | TTS_TIMEOUT           | No          | Tiempo de espera máximo en segundos para peticiones a tts-capability |
 | DEFAULT_LANGUAGE      | No          | Idioma enviado al STT                                 |
 | LOG_LEVEL             | No          | Nivel de logging                                      |
@@ -307,6 +309,7 @@ Toda la configuración se realiza mediante variables de entorno.
 Valores por defecto:
 
 ```env
+NATS_URL=nats://localhost:4222
 INPUT_DIR=/data/input
 PROCESSING_DIR=/data/processing
 OUTPUT_DIR=/data/output
@@ -314,7 +317,6 @@ ERROR_DIR=/data/error
 EMERGENCY_AUDIO_DIR=/data/emergency
 INTERACTION_AUDIO_FILE=/data/interaction.wav
 
-POLL_INTERVAL_SECONDS=1
 TTS_TIMEOUT=30.0
 DEFAULT_LANGUAGE=auto
 LOG_LEVEL=INFO
@@ -371,6 +373,7 @@ services:
       STT_BASE_URL: http://stt:8000
       ORCHESTRATOR_BASE_URL: http://orchestrator:8000
       TTS_BASE_URL: http://tts:8000
+      NATS_URL: nats://nats:4222
 
     volumes:
       - ./data:/data
@@ -381,6 +384,7 @@ services:
       - stt
       - orchestrator
       - tts
+      - nats
 
   stt:
     image: stt-service
@@ -390,6 +394,9 @@ services:
 
   tts:
     image: tts-capability
+
+  nats:
+    image: nats:2.10-alpine
 ```
 
 Arranque:
@@ -404,9 +411,9 @@ Interaction Manager se ejecuta como un proceso de larga duración.
 
 Durante su ejecución:
 
-1. Vigila la carpeta configurada como INPUT_DIR.
-2. Detecta nuevos archivos WAV.
-3. Los mueve a PROCESSING_DIR.
+1. Se conecta a NATS e inicializa `InteractionEventSubscriber` suscribiéndose a `SpeechCapturedEvent` (`event.speech.captured`).
+2. Al recibir una notificación de audio capturado, resuelve la ruta física del archivo WAV.
+3. Lo mueve a PROCESSING_DIR.
 4. Ejecuta el pipeline STT → Orchestrator → TTS.
 5. Deposita el resultado en OUTPUT_DIR.
 6. Elimina el archivo de PROCESSING_DIR.
@@ -424,13 +431,15 @@ interaction-manager/
 │   │   ├── orchestrator_client.py
 │   │   └── tts_client.py
 │   ├── services/
-│   │   ├── file_watcher.py
+│   │   ├── event_subscriber.py
 │   │   └── interaction_pipeline.py
 │   ├── config/
 │   │   └── settings.py
+│   ├── events.py
 │   ├── exceptions.py
 │   └── main.py
 ├── tests/
+│   └── test_event_subscriber.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -446,7 +455,7 @@ Debe utilizarse el módulo estándar `logging`.
 Debe registrarse:
 
 * Inicio de la aplicación.
-* Detección de nuevos archivos.
+* Recepción de eventos NATS (`SpeechCapturedEvent`).
 * Inicio y fin de procesamiento.
 * Llamadas a servicios externos.
 * Tiempos de procesamiento.
@@ -466,7 +475,7 @@ El proyecto debe incluir:
 
 Para:
 
-* Watcher de archivos.
+* Suscriptor de eventos NATS (`InteractionEventSubscriber`).
 * Clientes HTTP.
 * Gestión de configuración.
 * Pipeline de procesamiento.

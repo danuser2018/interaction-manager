@@ -17,7 +17,26 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
----
+## [1.11.0] - 2026-08-01
+
+### Añadido
+
+- Integración de la librería `nova-event-bus` para comunicación asíncrona basada en eventos sobre NATS.
+- Nuevo módulo `app/events.py` definiendo la clase de evento `SpeechCapturedEvent` (`event.speech.captured`).
+- Nuevo módulo `app/services/event_subscriber.py` implementando `InteractionEventSubscriber` con resolución de rutas en `INPUT_DIR`, validación de path traversal y manejo de errores.
+- Variable de configuración `NATS_URL` en `app/config/settings.py` (por defecto `nats://localhost:4222`).
+- Nuevas pruebas unitarias en `tests/test_event_subscriber.py`.
+
+### Cambiado
+
+- Refactorización del punto de entrada `app/main.py` para inicializar y gestionar el ciclo de vida de `InteractionEventSubscriber` con `NatsEventBus` en lugar de `file_watcher.py`.
+- Actualización de dependencias en `requirements.txt` reemplazando `watchdog` por `nova-event-bus`.
+- Actualización de `docker-compose.yml` para añadir `NATS_URL` y la dependencia `nats`.
+
+### Eliminado
+
+- Eliminación del módulo `app/services/file_watcher.py` y del parámetro obsoleto `POLL_INTERVAL_SECONDS`.
+- Eliminación de la suite de pruebas obsoleta `tests/test_watcher.py`.
 
 ## [1.10.0] 2026-07-15
 

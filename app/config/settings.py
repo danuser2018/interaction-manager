@@ -4,6 +4,7 @@ import os
 STT_BASE_URL = os.getenv("STT_BASE_URL", "http://stt:8000")
 ORCHESTRATOR_BASE_URL = os.getenv("ORCHESTRATOR_BASE_URL", "http://orchestrator:8000")
 TTS_BASE_URL = os.getenv("TTS_BASE_URL", "http://tts:8000")
+NATS_URL = os.getenv("NATS_URL", "nats://localhost:4222")
 
 # Directories
 INPUT_DIR = os.getenv("INPUT_DIR", "/data/input")
@@ -12,7 +13,6 @@ OUTPUT_DIR = os.getenv("OUTPUT_DIR", "/data/output")
 ERROR_DIR = os.getenv("ERROR_DIR", "/data/error")
 
 # Config
-POLL_INTERVAL_SECONDS = float(os.getenv("POLL_INTERVAL_SECONDS", "1"))
 DEFAULT_LANGUAGE = os.getenv("DEFAULT_LANGUAGE", "auto")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 TTS_TIMEOUT = float(os.getenv("TTS_TIMEOUT", "30.0"))
@@ -24,4 +24,3 @@ INTERACTION_AUDIO_FILE = os.getenv(
     "INTERACTION_AUDIO_FILE",
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "audio", "system", "interaction.wav"))
 )
-

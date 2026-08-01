@@ -8,11 +8,11 @@ services:
       STT_BASE_URL: http://stt:8000
       ORCHESTRATOR_BASE_URL: http://orchestrator:8000
       TTS_BASE_URL: http://tts:8000
+      NATS_URL: nats://nats:4222
       INPUT_DIR: /data/input
       PROCESSING_DIR: /data/processing
       OUTPUT_DIR: /data/output
       ERROR_DIR: /data/error
-      POLL_INTERVAL_SECONDS: 1
       DEFAULT_LANGUAGE: auto
       LOG_LEVEL: INFO
     volumes:
@@ -22,6 +22,7 @@ services:
       - stt
       - orchestrator
       - tts
+      - nats
 
   stt:
     image: stt-service
@@ -33,4 +34,8 @@ services:
 
   tts:
     image: tts-capability
+    # Mock para testing
+
+  nats:
+    image: nats:2.10-alpine
     # Mock para testing
