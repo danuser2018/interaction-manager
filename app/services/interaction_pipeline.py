@@ -1,6 +1,6 @@
 import logging
 import time
-from app.clients import stt_client, orchestrator_client, tts_client
+from app.clients import stt_client, orchestrator_client, tts_client, security_client
 from app.exceptions import (
     STTNullResponseError,
     STTEmptyTranscriptionError,
@@ -15,7 +15,8 @@ async def process_interaction(audio_file_path: str) -> bytes:
     Executes the full interaction pipeline:
     1. STT: audio to text
     2. Orchestrator: text to response
-    3. TTS: response to audio bytes
+    3. Security: authorize plan
+    4. TTS: response to audio bytes
     """
     logger.info(f"Starting interaction pipeline for: {audio_file_path}")
     
@@ -27,13 +28,18 @@ async def process_interaction(audio_file_path: str) -> bytes:
         raise STTEmptyTranscriptionError("STT service returned empty transcription.")
     logger.info(f"Transcription received: {transcription}")
     
-    # 2. Orchestrator
+    # 2. Orchestrator Resolve
     logger.info("Resolving user intent...")
     resolve_start = time.perf_counter()
     plan = await orchestrator_client.resolve_intent(transcription)
     resolve_time = time.perf_counter() - resolve_start
     logger.info("ExecutionPlan received.")
     
+    # Security Authorization
+    logger.info("Authorizing ExecutionPlan with security-service...")
+    await security_client.authorize_plan(plan, default_channel="voice")
+    logger.info("ExecutionPlan authorized successfully.")
+
     logger.info("Executing plan...")
     execute_start = time.perf_counter()
     response_text = await orchestrator_client.execute_plan(plan)
@@ -61,8 +67,9 @@ async def process_shortcut_interaction(shortcut: str, channel: str, correlation_
     """
     Executes a direct shortcut interaction pipeline without STT or intent resolution:
     1. Builds ExecutionPlan directly for shortcut plugin with 100.0 confidence.
-    2. Orchestrator: executes plan and returns response text.
-    3. TTS: synthesizes response text to audio bytes.
+    2. Authorizes ExecutionPlan with security-service.
+    3. Orchestrator: executes plan and returns response text.
+    4. TTS: synthesizes response text to audio bytes.
     """
     logger.info(f"Starting shortcut interaction pipeline for '{shortcut}' [correlation_id={correlation_id}, channel={channel}]")
     
@@ -85,6 +92,10 @@ async def process_shortcut_interaction(shortcut: str, channel: str, correlation_
         ]
     }
     
+    logger.info("Authorizing shortcut plan with security-service...")
+    await security_client.authorize_plan(plan, default_channel=channel)
+    logger.info("Shortcut plan authorized successfully.")
+
     logger.info("Executing shortcut plan on Orchestrator...")
     execute_start = time.perf_counter()
     response_text = await orchestrator_client.execute_plan(plan)

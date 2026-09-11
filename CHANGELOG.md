@@ -17,6 +17,24 @@ Los cambios se agrupan en las siguientes categorías:
 - **Corregido** — corrección de errores.
 - **Seguridad** — correcciones de vulnerabilidades.
 
+## [1.13.0] - 2026-09-11
+
+### Añadido
+- Integración de autorización **User → Service** con **Security Service** (`security-service`):
+  - Nuevo cliente HTTP `app/clients/security_client.py` con la función `authorize_plan` para invocar `POST /v1/security/authorize` enviando el `ExecutionPlan` y el `SecurityContext` (`channel`).
+  - Nuevas excepciones de dominio en `app/exceptions.py`: `SecurityError`, `AuthorizationDeniedError` y `SecurityUnavailableError`.
+  - Mapeo de errores en `app/services/error_handler.py`:
+    - `AuthorizationDeniedError` → `"No estás autorizado para realizar esta acción."` (sintetizado vía TTS o fallback a `emergency.wav`).
+    - `SecurityUnavailableError` → `"El servicio de seguridad no está disponible."`.
+  - Variable de configuración `SECURITY_SERVICE_BASE_URL` en `app/config/settings.py` (por defecto `http://security-service:8000`).
+  - Fixture global de mocking en `tests/conftest.py` y nueva suite de pruebas unitarias en `tests/test_security_client.py` para validar respuestas `ALLOW`, `DENY` y fallos de conexión.
+
+### Cambiado
+- Modificado el pipeline de interacciones (`process_interaction` en `app/services/interaction_pipeline.py`) para intercalar el paso de autorización entre `resolve_intent` y `execute_plan`:
+  - Si la decisión es `ALLOW`, inyecta el `authorization_token` correspondiente en cada paso (`step.security.authorization_token`) antes de invocar `execute_plan`.
+  - Si la decisión es `DENY`, aborta inmediatamente el pipeline lanzando `AuthorizationDeniedError`, impidiendo la llamada a Orchestrator.
+- Modificado el pipeline de shortcuts directos (`process_shortcut_interaction` en `app/services/interaction_pipeline.py`) para autorizar el plan contra el canal de la orden antes de ejecutarlo en Orchestrator.
+
 ## [1.12.0] - 2026-08-02
 
 ### Añadido

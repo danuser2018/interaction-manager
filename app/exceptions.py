@@ -51,3 +51,19 @@ class TTSResponseError(TTSError):
 class TTSUnavailableError(TTSError):
     """Raised when TTS service is unavailable or times out."""
     pass
+
+
+class SecurityError(InteractionManagerError):
+    """Base exception for all Security errors."""
+    pass
+
+
+class AuthorizationDeniedError(SecurityError):
+    """Raised when security-service denies authorization for an execution plan."""
+    pass
+
+
+class SecurityUnavailableError(SecurityError):
+    """Raised when security-service is unavailable or times out."""
+    pass
+
