@@ -10,6 +10,8 @@ from app.exceptions import (
     OrchestratorUnavailableError,
     TTSResponseError,
     TTSUnavailableError,
+    AuthorizationDeniedError,
+    SecurityUnavailableError,
 )
 
 logger = logging.getLogger(__name__)
@@ -23,6 +25,8 @@ ERROR_MAPPING = {
     OrchestratorUnavailableError: "El servicio solicitado no está disponible.",
     TTSResponseError: "Ha ocurrido un error interno.",
     TTSUnavailableError: "Ha ocurrido un error interno.",
+    AuthorizationDeniedError: "No estás autorizado para realizar esta acción.",
+    SecurityUnavailableError: "El servicio de seguridad no está disponible.",
 }
 
 async def handle_error(error: Exception) -> bytes:

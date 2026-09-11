@@ -5,6 +5,7 @@ STT_BASE_URL = os.getenv("STT_BASE_URL", "http://stt:8000")
 ORCHESTRATOR_BASE_URL = os.getenv("ORCHESTRATOR_BASE_URL", "http://orchestrator:8000")
 TTS_BASE_URL = os.getenv("TTS_BASE_URL", "http://tts:8000")
 NATS_URL = os.getenv("NATS_URL", "nats://localhost:4222")
+SECURITY_SERVICE_BASE_URL = os.getenv("SECURITY_SERVICE_BASE_URL", "http://security-service:8000")
 
 # Directories
 INPUT_DIR = os.getenv("INPUT_DIR", "/data/input")
